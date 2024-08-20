@@ -16,8 +16,9 @@ public struct AsyncCurrentValueSubject<Element: Sendable>: AsyncSequence, Sendab
     private let storage: _Storage
 
     /// A shared AsyncSequence that yields its current value and any value changes to its subscribers
-    public init() {
-        storage = _Storage()
+    /// - Parameter value: the initial value
+    public init(initialValue value: Element) {
+        storage = _Storage(initialValue: value)
     }
 
     init(storage: _Storage) {
@@ -42,9 +43,13 @@ public struct AsyncCurrentValueSubject<Element: Sendable>: AsyncSequence, Sendab
 
 extension AsyncCurrentValueSubject {
     actor _Storage {
-        private(set) var currentValue: Element?
+        private(set) var currentValue: Element
         private(set) var finished: Bool = false
         private(set) var continuations: [UUID: AsyncStream<Element>.Continuation] = [:]
+
+        init(initialValue: Element) {
+            currentValue = initialValue
+        }
 
         deinit {
             for id in continuations.keys {
@@ -95,10 +100,7 @@ extension AsyncCurrentValueSubject {
             }
 
             continuations[id] = continuation
-
-            if let currentValue {
-                continuation.yield(currentValue)
-            }
+            continuation.yield(currentValue)
         }
 
         private func removeContinuation(id: UUID) {
