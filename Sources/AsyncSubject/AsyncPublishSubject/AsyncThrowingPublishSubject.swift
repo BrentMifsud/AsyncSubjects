@@ -16,7 +16,7 @@ public struct AsyncThrowingPublishSubject<Element: Sendable>: AsyncSequence, Sen
     private let storage: _Storage
 
     /// A shared `AsyncSequence` that yields value changes to its subscribers
-    public init(){
+    public init() {
         storage = _Storage()
     }
 
@@ -29,7 +29,7 @@ public struct AsyncThrowingPublishSubject<Element: Sendable>: AsyncSequence, Sen
     public func yield(value: Element) async {
         await storage.yield(value: value)
     }
-    
+
     /// Finish the subject gracefully or with an error
     /// - Parameter error: error to end the subject with. Send nil to end gracefully
     public func finish(throwing error: (any Error)? = nil) async {
@@ -41,11 +41,12 @@ public struct AsyncThrowingPublishSubject<Element: Sendable>: AsyncSequence, Sen
     }
 }
 
-internal extension AsyncThrowingPublishSubject {
+extension AsyncThrowingPublishSubject {
     actor _Storage {
         private(set) var finished: Bool = false
         private(set) var failure: (any Error)?
-        private(set) var continuations: [UUID: AsyncThrowingStream<Element, any Error>.Continuation] = [:]
+        private(set) var continuations: [UUID: AsyncThrowingStream<Element, any Error>.Continuation] =
+            [:]
 
         deinit {
             for id in continuations.keys {

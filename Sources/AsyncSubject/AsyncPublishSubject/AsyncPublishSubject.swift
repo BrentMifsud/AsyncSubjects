@@ -16,7 +16,7 @@ public struct AsyncPublishSubject<Element: Sendable>: AsyncSequence, Sendable {
     private let storage: _Storage
 
     /// A shared `AsyncSequence` that yields value changes to its subscribers
-    public init(){
+    public init() {
         storage = _Storage()
     }
 
@@ -40,7 +40,7 @@ public struct AsyncPublishSubject<Element: Sendable>: AsyncSequence, Sendable {
     }
 }
 
-internal extension AsyncPublishSubject {
+extension AsyncPublishSubject {
     actor _Storage {
         private(set) var finished: Bool = false
         private(set) var continuations: [UUID: AsyncStream<Element>.Continuation] = [:]

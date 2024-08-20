@@ -5,9 +5,10 @@
 //  Created by Brent Mifsud on 2024-08-20.
 //
 
-import Testing
-import Foundation
 import AsyncAlgorithms
+import Foundation
+import Testing
+
 @testable import AsyncSubject
 
 @Suite("Publish Subject Tests")
@@ -65,7 +66,7 @@ struct AsyncPublishSubjectTests {
                 #expect(emittedValues == expectedValues)
             }
 
-            for _ in 0 ..< 3 {
+            for _ in 0..<3 {
                 group.addTask {
                     await createSubscriber()
                 }
@@ -89,10 +90,12 @@ struct AsyncPublishSubjectTests {
 
     @Test(
         "(Multiple subscribers) Test staggered subscribers",
-        arguments: [(
-            valuesToSend: [1, 2, 3, 4 ,5],
-            expectedValues: [3, 4, 5]
-        )]
+        arguments: [
+            (
+                valuesToSend: [1, 2, 3, 4, 5],
+                expectedValues: [3, 4, 5]
+            )
+        ]
     )
     func valuesAreValidStaggedSubscribers(arguments: ([Int], [Int])) async throws {
         let (values, expectedValues) = arguments

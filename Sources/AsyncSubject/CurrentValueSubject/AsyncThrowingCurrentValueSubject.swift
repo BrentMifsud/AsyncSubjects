@@ -16,7 +16,7 @@ public struct AsyncThrowingCurrentValueSubject<Element: Sendable>: AsyncSequence
     private let storage: _Storage
 
     /// A shared `AsyncSequence` that yields value changes to its subscribers
-    public init(){
+    public init() {
         storage = _Storage()
     }
 
@@ -41,7 +41,7 @@ public struct AsyncThrowingCurrentValueSubject<Element: Sendable>: AsyncSequence
     }
 }
 
-internal extension AsyncThrowingCurrentValueSubject {
+extension AsyncThrowingCurrentValueSubject {
     actor _Storage {
         private(set) var currentValue: Element?
         private(set) var finished: Bool = false

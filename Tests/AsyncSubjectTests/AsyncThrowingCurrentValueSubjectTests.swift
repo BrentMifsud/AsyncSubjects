@@ -7,17 +7,20 @@
 
 import Foundation
 import Testing
+
 @testable import AsyncSubject
 
 @Suite("Throwing current Value Subject Tests")
 struct ThrowingCurrentValueSubjectTests {
     @Test(
         "(Single subscriber) Test throwing error",
-        arguments: [(
-            valuesToSend: [1, 2, 3, 4 ,5],
-            expectedValues: [1, 2, 3],
-            expectedFailure: NSError(domain: "Test", code: 999)
-        )]
+        arguments: [
+            (
+                valuesToSend: [1, 2, 3, 4, 5],
+                expectedValues: [1, 2, 3],
+                expectedFailure: NSError(domain: "Test", code: 999)
+            )
+        ]
     )
     func valuesAreValidAfterThrow(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expected, failure) = arguments
@@ -63,11 +66,13 @@ struct ThrowingCurrentValueSubjectTests {
 
     @Test(
         "(Multiple subscribers) Test throwing error",
-        arguments: [(
-            valuesToSend: [1, 2, 3, 4 ,5],
-            expectedValues: [1, 2, 3],
-            expectedFailure: NSError(domain: "Test", code: 999)
-        )]
+        arguments: [
+            (
+                valuesToSend: [1, 2, 3, 4, 5],
+                expectedValues: [1, 2, 3],
+                expectedFailure: NSError(domain: "Test", code: 999)
+            )
+        ]
     )
     func valuesAreValidAfterThrowMultipleSubscribers(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expected, failure) = arguments
@@ -92,7 +97,7 @@ struct ThrowingCurrentValueSubjectTests {
                 #expect(emittedValues == expected)
             }
 
-            for _ in 0 ..< 3 {
+            for _ in 0..<3 {
                 group.addTask {
                     await createSubscriber()
                 }
@@ -120,11 +125,13 @@ struct ThrowingCurrentValueSubjectTests {
 
     @Test(
         "(Multiple subscribers) Test staggered subscribers failure",
-        arguments: [(
-            valuesToSend: [1, 2, 3, 4 ,5],
-            expectedValues: [1, 2, 3],
-            failure: NSError(domain: "Test", code: 999)
-        )]
+        arguments: [
+            (
+                valuesToSend: [1, 2, 3, 4, 5],
+                expectedValues: [1, 2, 3],
+                failure: NSError(domain: "Test", code: 999)
+            )
+        ]
     )
     func failedSubscriberDoesNotreceiveCurrentValue(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expectedValues, failure) = arguments

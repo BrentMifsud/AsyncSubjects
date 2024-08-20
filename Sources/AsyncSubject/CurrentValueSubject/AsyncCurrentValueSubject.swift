@@ -16,7 +16,7 @@ public struct AsyncCurrentValueSubject<Element: Sendable>: AsyncSequence, Sendab
     private let storage: _Storage
 
     /// A shared AsyncSequence that yields its current value and any value changes to its subscribers
-    public init(){
+    public init() {
         storage = _Storage()
     }
 
@@ -29,7 +29,7 @@ public struct AsyncCurrentValueSubject<Element: Sendable>: AsyncSequence, Sendab
     public func yield(value: Element) async {
         await storage.yield(value: value)
     }
-    
+
     /// Finish the subject
     public func finish() async {
         await storage.finish()
@@ -40,7 +40,7 @@ public struct AsyncCurrentValueSubject<Element: Sendable>: AsyncSequence, Sendab
     }
 }
 
-internal extension AsyncCurrentValueSubject {
+extension AsyncCurrentValueSubject {
     actor _Storage {
         private(set) var currentValue: Element?
         private(set) var finished: Bool = false
