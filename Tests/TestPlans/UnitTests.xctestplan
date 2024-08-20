@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "F7E5CF39-1AF8-4FFF-A678-AC77B44F141E",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AsyncSubjectTests",
+        "name" : "AsyncSubjectTests"
+      }
+    }
+  ],
+  "version" : 1
+}
