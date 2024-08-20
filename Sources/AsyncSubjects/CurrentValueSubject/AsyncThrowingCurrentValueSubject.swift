@@ -16,8 +16,9 @@ public struct AsyncThrowingCurrentValueSubject<Element: Sendable>: AsyncSequence
     private let storage: _Storage
 
     /// A shared `AsyncSequence` that yields value changes to its subscribers
-    public init() {
-        storage = _Storage()
+    /// - Parameter value: the initial value
+    public init(initialValue value: Element) {
+        storage = _Storage(initialValue: value)
     }
 
     init(storage: _Storage) {
@@ -47,6 +48,10 @@ extension AsyncThrowingCurrentValueSubject {
         private(set) var finished: Bool = false
         private(set) var failure: (any Error)?
         private(set) var continuations: [UUID: AsyncThrowingStream<Element, any Error>.Continuation] = [:]
+
+        init(initialValue: Element) {
+            currentValue = initialValue
+        }
 
         deinit {
             for id in continuations.keys {

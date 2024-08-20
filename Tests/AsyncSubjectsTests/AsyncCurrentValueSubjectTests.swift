@@ -12,22 +12,43 @@ import Testing
 
 @Suite("Current Value Subject Tests")
 struct AsyncCurrentValueSubjectTests {
+    @Test("Initial value", arguments: [1])
+    func initialValue(expectedValue: Int) async throws {
+        let storage = AsyncCurrentValueSubject<Int>._Storage(initialValue: expectedValue)
+        let subject = AsyncCurrentValueSubject(storage: storage)
+
+        await storage.validateInitialState()
+
+        let task = Task {
+            var recievedValues = [Int]()
+            for await value in subject {
+                recievedValues.append(value)
+            }
+            #expect(recievedValues == [expectedValue])
+        }
+
+        await waitFor { await !storage.continuations.isEmpty }
+        await subject.finish()
+        await task.value
+        await storage.validateEndState()
+    }
+
     @Test("(Single subscriber) Test emitted Values", arguments: [[1, 2, 3]])
     func valuesAreValid(expectedValues: [Int]) async throws {
-        let storage = AsyncCurrentValueSubject<Int>._Storage()
+        let storage = AsyncCurrentValueSubject<Int>._Storage(initialValue: 0)
         let subject = AsyncCurrentValueSubject<Int>(storage: storage)
+
+        await storage.validateInitialState()
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 var emittedValues = [Int]()
 
-                #expect(await storage.currentValue == nil)
-
                 for await value in subject {
                     emittedValues.append(value)
                 }
 
-                #expect(emittedValues == expectedValues)
+                #expect(emittedValues == [0] + expectedValues)
             }
 
             group.addTask {
@@ -46,24 +67,26 @@ struct AsyncCurrentValueSubjectTests {
 
             #expect(await storage.finished)
         }
+
+        await storage.validateEndState()
     }
 
     @Test("(Multiple subscribers) Test emitted values", arguments: [[1, 2, 3]])
     func valuesAreValidWithMultipleSubscribers(expectedValues: [Int]) async throws {
-        let storage = AsyncCurrentValueSubject<Int>._Storage()
+        let storage = AsyncCurrentValueSubject<Int>._Storage(initialValue: 0)
         let subject = AsyncCurrentValueSubject<Int>(storage: storage)
+
+        await storage.validateInitialState()
 
         await withTaskGroup(of: Void.self) { group in
             let createSubscriber = { @Sendable () async in
                 var emittedValues = [Int]()
 
-                #expect(await storage.currentValue == nil)
-
                 for await value in subject {
                     emittedValues.append(value)
                 }
 
-                #expect(emittedValues == expectedValues)
+                #expect(emittedValues == [0] + expectedValues)
             }
 
             for _ in 0..<3 {
@@ -84,10 +107,9 @@ struct AsyncCurrentValueSubjectTests {
             }
 
             await group.waitForAll()
-
-            #expect(await storage.currentValue == expectedValues.last)
-            #expect(await storage.finished)
         }
+
+        await storage.validateEndState()
     }
 
     @Test(
@@ -101,8 +123,10 @@ struct AsyncCurrentValueSubjectTests {
     )
     func valuesAreValidStaggedSubscribers(arguments: ([Int], [Int])) async throws {
         let (values, expectedValues) = arguments
-        let storage = AsyncCurrentValueSubject<Int>._Storage()
+        let storage = AsyncCurrentValueSubject<Int>._Storage(initialValue: 0)
         let subject = AsyncCurrentValueSubject<Int>(storage: storage)
+
+        await storage.validateInitialState()
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
@@ -111,7 +135,7 @@ struct AsyncCurrentValueSubjectTests {
                     recievedValues.append(value)
                 }
 
-                #expect(recievedValues == values)
+                #expect(recievedValues == [0] + values)
             }
 
             group.addTask {
@@ -143,6 +167,8 @@ struct AsyncCurrentValueSubjectTests {
 
             await group.waitForAll()
         }
+
+        await storage.validateEndState()
     }
 
     @Test(
@@ -157,24 +183,24 @@ struct AsyncCurrentValueSubjectTests {
     )
     func valuesAreValidAfterThrow(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expected, failure) = arguments
-        let storage = AsyncThrowingCurrentValueSubject<Int>._Storage()
+        let storage = AsyncThrowingCurrentValueSubject<Int>._Storage(initialValue: 0)
         let subject = AsyncThrowingCurrentValueSubject<Int>(storage: storage)
+
+        await storage.validateInitialState()
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 var emittedValues = [Int]()
-
-                #expect(await storage.currentValue == nil)
 
                 do {
                     for try await value in subject {
                         emittedValues.append(value)
                     }
                 } catch {
-                    #expect(emittedValues == expected)
                     #expect((error as NSError) == failure)
-                    return
                 }
+
+                #expect(emittedValues == [0] + expected)
             }
 
             group.addTask {
@@ -192,11 +218,9 @@ struct AsyncCurrentValueSubjectTests {
             }
 
             await group.waitForAll()
-
-            #expect(await storage.currentValue == expected.last)
-            #expect(await storage.finished)
-            #expect((await storage.failure as? NSError) == failure)
         }
+
+        await storage.validateEndState()
     }
 
     @Test(
@@ -211,27 +235,24 @@ struct AsyncCurrentValueSubjectTests {
     )
     func valuesAreValidAfterThrowMultipleSubscribers(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expected, failure) = arguments
-        let storage = AsyncThrowingCurrentValueSubject<Int>._Storage()
+        let storage = AsyncThrowingCurrentValueSubject<Int>._Storage(initialValue: 0)
         let subject = AsyncThrowingCurrentValueSubject<Int>(storage: storage)
+
+        await storage.validateInitialState()
 
         await withTaskGroup(of: Void.self) { group in
             let createSubscriber = { @Sendable () async in
                 var emittedValues = [Int]()
-
-                #expect(await storage.currentValue == nil)
-                #expect(await !storage.finished)
-                #expect(await storage.failure == nil)
 
                 do {
                     for try await value in subject {
                         emittedValues.append(value)
                     }
                 } catch {
-                    #expect(emittedValues == expected)
                     #expect((error as NSError) == failure)
                 }
 
-                #expect(emittedValues == expected)
+                #expect(emittedValues == [0] + expected)
             }
 
             for _ in 0..<3 {
@@ -255,13 +276,9 @@ struct AsyncCurrentValueSubjectTests {
             }
 
             await group.waitForAll()
-
-            #expect(
-                await storage.currentValue == expected.last, "Storage should have the final value before the failure")
-            #expect(await storage.continuations.isEmpty, "Continuations should be freed up after completion")
-            #expect(await (storage.failure as? NSError) == failure, "Failure should not be null")
-            #expect(await storage.finished, "the subject should be finished")
         }
+
+        await storage.validateEndState()
     }
 
     @Test(
@@ -276,8 +293,10 @@ struct AsyncCurrentValueSubjectTests {
     )
     func failedSubscriberDoesNotreceiveCurrentValue(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expectedValues, failure) = arguments
-        let storage = AsyncThrowingCurrentValueSubject<Int>._Storage()
+        let storage = AsyncThrowingCurrentValueSubject<Int>._Storage(initialValue: 0)
         let subject = AsyncThrowingCurrentValueSubject<Int>(storage: storage)
+
+        await storage.validateInitialState()
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
@@ -291,7 +310,7 @@ struct AsyncCurrentValueSubjectTests {
                     #expect((error as NSError) == failure)
                 }
 
-                #expect(recievedValues == expectedValues)
+                #expect(recievedValues == [0] + expectedValues)
             }
 
             group.addTask {
@@ -324,23 +343,19 @@ struct AsyncCurrentValueSubjectTests {
             }
 
             await group.waitForAll()
-
-            #expect(await storage.continuations.isEmpty, "Continuations should be freed up after completion")
-            #expect(await (storage.failure as? NSError) == failure, "Failure should not be null")
-            #expect(await storage.finished, "the subject should be finished")
         }
+
+        await storage.validateEndState()
     }
 }
 
 extension AsyncCurrentValueSubject._Storage {
     func validateInitialState() {
-        #expect(currentValue == nil)
         #expect(!finished, "Initial state should not be finished")
         #expect(continuations.isEmpty, "Initial state should not have continuations")
     }
 
     func validateEndState() {
-        #expect(currentValue != nil)
         #expect(finished, "Final state should be finished")
         #expect(continuations.isEmpty, "Final state should not have any continuations")
     }
