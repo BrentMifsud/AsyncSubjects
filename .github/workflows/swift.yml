@@ -17,6 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: swift build -v
+      run: swift build -v --build-tests --enable-swift-testing --disable-xctest
     - name: Run tests
-      run: swift test -v
+      run: swift test -v --enable-swift-testing --disable-xctest
