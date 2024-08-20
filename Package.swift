@@ -4,21 +4,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "AsyncSubject",
+    name: "AsyncSubjects",
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
-    products: [.library(name: "AsyncSubject", targets: ["AsyncSubject"])],
+    products: [.library(name: "AsyncSubjects", targets: ["AsyncSubjects"])],
     dependencies: [
         .package(url: "https://github.com/apple/swift-async-algorithms", from: "1.0.0"),
         .package(url: "https://github.com/swiftlang/swift-format", from: "510.1.0")
     ],
     targets: [
         .target(
-            name: "AsyncSubject"
+            name: "AsyncSubjects"
         ),
         .testTarget(
-            name: "AsyncSubjectTests",
+            name: "AsyncSubjectsTests",
             dependencies: [
-                .target(name: "AsyncSubject"),
+                .target(name: "AsyncSubjects"),
                 .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
             ]
         ),
