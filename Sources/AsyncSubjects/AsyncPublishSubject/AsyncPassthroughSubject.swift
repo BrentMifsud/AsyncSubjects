@@ -1,5 +1,5 @@
 //
-//  AsyncPublishSubject.swift
+//  AsyncPassthroughSubject.swift
 //  AsyncSubject
 //
 //  Created by Brent Mifsud on 2024-08-19.
@@ -8,7 +8,7 @@
 import Foundation
 
 /// A shared `AsyncSequence` that yields value changes to its subscribers
-public struct AsyncPublishSubject<Element: Sendable>: AsyncSequence, Sendable {
+public struct AsyncPassthroughSubject<Element: Sendable>: AsyncSequence, Sendable {
     public typealias Element = Element
     public typealias AsyncIterator = AsyncStream<Element>.AsyncIterator
     typealias Continuation = AsyncStream<Element>.Continuation
@@ -40,7 +40,7 @@ public struct AsyncPublishSubject<Element: Sendable>: AsyncSequence, Sendable {
     }
 }
 
-extension AsyncPublishSubject {
+extension AsyncPassthroughSubject {
     actor _Storage {
         private(set) var finished: Bool = false
         private(set) var continuations: [UUID: AsyncStream<Element>.Continuation] = [:]
