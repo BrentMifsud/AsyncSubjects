@@ -1,5 +1,5 @@
 //
-//  AsyncThrowingPublishSubjectTests.swift
+//  AsyncThrowingPassthroughSubjectTests.swift
 //  AsyncSubject
 //
 //  Created by Brent Mifsud on 2024-08-20.
@@ -9,10 +9,10 @@ import AsyncAlgorithms
 import Foundation
 import Testing
 
-@testable import AsyncSubject
+@testable import AsyncSubjects
 
-@Suite("Throwing Publish Subject Tests")
-struct AsyncThrowingPublishSubjectTests {
+@Suite("Throwing Passthrough Subject Tests")
+struct AsyncThrowingPassthroughSubjectTests {
     @Test(
         "(Single subscriber) Test throwing error",
         arguments: [
@@ -25,8 +25,8 @@ struct AsyncThrowingPublishSubjectTests {
     )
     func valuesAreValidAfterThrow(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expected, failure) = arguments
-        let storage = AsyncThrowingPublishSubject<Int>._Storage()
-        let subject = AsyncThrowingPublishSubject<Int>(storage: storage)
+        let storage = AsyncThrowingPassthroughSubject<Int>._Storage()
+        let subject = AsyncThrowingPassthroughSubject<Int>(storage: storage)
 
         await storage.validateInitialState()
 
@@ -76,8 +76,8 @@ struct AsyncThrowingPublishSubjectTests {
     )
     func valuesAreValidAfterThrowMultipleSubscribers(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expected, failure) = arguments
-        let storage = AsyncThrowingPublishSubject<Int>._Storage()
-        let subject = AsyncThrowingPublishSubject<Int>(storage: storage)
+        let storage = AsyncThrowingPassthroughSubject<Int>._Storage()
+        let subject = AsyncThrowingPassthroughSubject<Int>(storage: storage)
 
         await storage.validateInitialState()
 
@@ -136,8 +136,8 @@ struct AsyncThrowingPublishSubjectTests {
     )
     func failedSubscriberDoesNotreceiveCurrentValue(arguments: ([Int], [Int], NSError)) async throws {
         let (values, expectedValues, failure) = arguments
-        let storage = AsyncThrowingPublishSubject<Int>._Storage()
-        let subject = AsyncThrowingPublishSubject<Int>(storage: storage)
+        let storage = AsyncThrowingPassthroughSubject<Int>._Storage()
+        let subject = AsyncThrowingPassthroughSubject<Int>(storage: storage)
 
         await storage.validateInitialState()
 
@@ -206,7 +206,7 @@ struct AsyncThrowingPublishSubjectTests {
     }
 }
 
-extension AsyncThrowingPublishSubject._Storage {
+extension AsyncThrowingPassthroughSubject._Storage {
     func validateInitialState() {
         #expect(!finished, "Initial state should not be finished")
         #expect(failure == nil, "Initial state should not have an error")

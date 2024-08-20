@@ -8,7 +8,7 @@
 import Foundation
 import Testing
 
-@testable import AsyncSubject
+@testable import AsyncSubjects
 
 @Suite("Throwing current Value Subject Tests")
 struct ThrowingCurrentValueSubjectTests {

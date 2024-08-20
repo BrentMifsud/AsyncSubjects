@@ -1,5 +1,5 @@
 //
-//  AsyncPublishSubjectTests.swift
+//  AsyncPassthroughSubjectTests.swift
 //  AsyncSubject
 //
 //  Created by Brent Mifsud on 2024-08-20.
@@ -9,14 +9,14 @@ import AsyncAlgorithms
 import Foundation
 import Testing
 
-@testable import AsyncSubject
+@testable import AsyncSubjects
 
-@Suite("Publish Subject Tests")
-struct AsyncPublishSubjectTests {
+@Suite("Passthrough Subject Tests")
+struct AsyncPassthroughSubjectTests {
     @Test("(Single subscriber) Test emitted Values", arguments: [[1, 2, 3]])
     func valuesAreValid(expectedValues: [Int]) async throws {
-        let storage = AsyncPublishSubject<Int>._Storage()
-        let subject = AsyncPublishSubject<Int>(storage: storage)
+        let storage = AsyncPassthroughSubject<Int>._Storage()
+        let subject = AsyncPassthroughSubject<Int>(storage: storage)
 
         await storage.validateInitialState()
 
@@ -50,8 +50,8 @@ struct AsyncPublishSubjectTests {
 
     @Test("(Multiple subscribers) Test emitted values", arguments: [[1, 2, 3]])
     func valuesAreValidWithMultipleSubscribers(expectedValues: [Int]) async throws {
-        let storage = AsyncPublishSubject<Int>._Storage()
-        let subject = AsyncPublishSubject<Int>(storage: storage)
+        let storage = AsyncPassthroughSubject<Int>._Storage()
+        let subject = AsyncPassthroughSubject<Int>(storage: storage)
 
         await storage.validateInitialState()
 
@@ -99,8 +99,8 @@ struct AsyncPublishSubjectTests {
     )
     func valuesAreValidStaggedSubscribers(arguments: ([Int], [Int])) async throws {
         let (values, expectedValues) = arguments
-        let storage = AsyncPublishSubject<Int>._Storage()
-        let subject = AsyncPublishSubject<Int>(storage: storage)
+        let storage = AsyncPassthroughSubject<Int>._Storage()
+        let subject = AsyncPassthroughSubject<Int>(storage: storage)
 
         await storage.validateInitialState()
 
@@ -157,7 +157,7 @@ struct AsyncPublishSubjectTests {
     }
 }
 
-extension AsyncPublishSubject._Storage {
+extension AsyncPassthroughSubject._Storage {
     func validateInitialState() {
         #expect(!finished, "Initial state should not be finished")
         #expect(continuations.isEmpty, "Initial state should not have continuations")
